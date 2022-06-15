@@ -20,7 +20,7 @@ function EditProfile(){
                                         <input type="email" class="form-control" placeholder="Name"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>New Email</label>
+                                        <label>New Emails</label>
                                         <input type="email" class="form-control" placeholder="Email"/>
                                     </div>
                                     <div class="form-group">
