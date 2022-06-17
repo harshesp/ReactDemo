@@ -307,6 +307,7 @@ function EditProfile(){
                   className="has-arrow"
                   href="javascript:void()"
                   aria-expanded="false"
+                   data-toggle="dropdown"
                 >
                   <i className="icon-speedometer menu-icon" />
                   <span className="nav-text">Dashboard</span>
