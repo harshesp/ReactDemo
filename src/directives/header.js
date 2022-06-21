@@ -2,10 +2,23 @@ import React from "react";
 import { Link } from "react-router-dom";
 import config from '../config/config';
 
+import Cookies from "js-cookie";
 
-function Hearder(){
+function Header(){
+
+  
+  function logout(){
+    Cookies.remove('success');
+    setTimeout(() => {
+      window.location.href = `${config.baseUrl}`
+  });
+
+  }
     return(
-    
+      <>
+      
+    <div>
+
     <div className="header">
     <div className="header-content clearfix">
       <div className="nav-control">
@@ -238,9 +251,7 @@ function Hearder(){
               <div className="dropdown-content-body">
                 <ul>
                   <li>
-                   {/* <a href="app-profile.html">
-                      <i className="icon-user" /> <span>Profile</span>
-</a> */}<Link to={`${config.baseUrl}profile`}><i className="icon-user" /> <span>Profile</span></Link>
+                   <Link to={`${config.baseUrl}profile`}><i className="icon-user" /> <span>Profile</span></Link>
                   </li>
                   <li>
                     <a href="javascript:void()">
@@ -252,14 +263,14 @@ function Hearder(){
                   </li>
                   <hr className="my-2" />
                   <li>
-                    <a href="page-lock.html">
+                    <a href="#">
                       <i className="icon-lock" /> <span>Lock Screen</span>
                     </a>
                   </li>
                   <li>
                     {/* <a href="page-login.html">
                       <i className="icon-key" /> <span>Logout</span>
-                    </a> */}<Link to={`${config.baseUrl}`}><i className="icon-key" /> <span>Logout</span></Link>
+                    </a> */}<Link to='#' onClick={logout}><i className="icon-key" /> <span >Logout</span></Link>
                   </li>
                 </ul>
               </div>
@@ -268,5 +279,8 @@ function Hearder(){
         </ul>
       </div>
     </div>
-  </div>);
-}export default Hearder;
+  </div>
+  </div>
+
+  </>);
+}export default Header;

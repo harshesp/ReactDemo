@@ -1,13 +1,13 @@
 import axios from 'axios'
 
 
-export const request = ( data, method) => {
+export const request = ( path,data, method) => {
    // const serverPath = 'https://espsofttech.org:6030/api/registration'
-  
+  const serverpth= 'https://espsofttech.org:6030/api'
 
     var options = {
         method: method,
-        url: 'https://espsofttech.org:6030/api/registration',
+        url: `${serverpth}/${path}`,
         headers: {
             'Content-Type': 'application/json'
         },
@@ -25,4 +25,4 @@ export const request = ( data, method) => {
     return res
 }
 
-export const postRequest = async (data) => await request( data, 'POST')
+export const postRequest = async (path,data) => await request(path, data, 'POST')

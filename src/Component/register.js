@@ -7,10 +7,11 @@ import {RegisterAction} from '../Action/userAction';
 function Register() {
     
     const [form, setForm] = useState({ first_name: "", last_name: "", email: "", password: "", confirm_password: "" })
-    const [vil, setvil] = useState({ firstErr: false, lastErr: false, emailErr: false, passwordErr: false, confirm_passwordErr: false })
+    //const [vil, setvil] = useState({ firstErr1: false, lastErr: false, emailErr: false, passwordErr: false, confirm_passwordErr: false })
     const [validationerr, setvalidationerr] = useState({})
     const inputHandler = (e) => {
         const { name, value } = e.target
+        
         setForm((old) => {
             return { ...old, [name]: value }
         })
@@ -57,7 +58,7 @@ function Register() {
             if (res.success) {
                 toast.success(res.msg)
                 setTimeout(() => {
-                    window.location.reload();
+                    window.location.href = `${config.baseUrl}dashboard`;
                 }, 2000);
             } else {
                 toast.error(res.msg);
@@ -85,7 +86,8 @@ function Register() {
                                         <div class="form-group">
                                             <input type="text" class="form-control" placeholder="First Name" name="first_name" onChange={inputHandler} />
                                             <span style={{ color: 'red' }}>{validationerr.first_nameerr}</span><br/>
-
+                                            
+ 
                                         </div>
                                         <div class="form-group">
                                             <input type="text" class="form-control" placeholder="Last Name" name="last_name" onChange={inputHandler} />

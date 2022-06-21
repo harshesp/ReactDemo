@@ -1,72 +1,22 @@
-import { Link, useNavigate } from 'react-router-dom'
 import config from '../config/config';
-import Hearder from '../directives/header';
-
+import Headers from '../directives/header';
+import Navbar from "../directives/navbar";
+import Sidebar from '../directives/sidebar';
+import Cookies from 'js-cookie';
 function Dashboard(){
+
+  const loginData = (!Cookies.get('success')) ? [] : JSON.parse(Cookies.get('success'));
+
+  if(loginData==''){
+window.location.href=`${config.baseUrl}`;
+
+  }
+  
     return(
 <div >
-  {/***********************************
-      Nav header start
-  ************************************/}
-  <div className="nav-header">
-    <div className="brand-logo">
-      <a href="index.html">
-        <b className="logo-abbr">
-          <img src="images/logo.png" alt="" />{" "}
-        </b>
-        <span className="logo-compact">
-          <img src="./images/logo-compact.png" alt="" />
-        </span>
-        <span className="brand-title">
-          <img src="images/logo-text.png" alt="" />
-        </span>
-      </a>
-    </div>
-  </div>
-  {/***********************************
-      Nav header end
-  ************************************/}
-  {/***********************************
-      Header start
-  ************************************/}
- { <Hearder/>}
-  {/***********************************
-      Header end ti-comment-alt
-  ************************************/}
-  {/***********************************
-      Sidebar start
-  ************************************/}
-  <div className="nk-sidebar">
-    <div className="nk-nav-scroll">
-      <ul className="metismenu" id="menu">
-        <li className="nav-label">Dashboard</li>
-        <li>
-          <a
-            className="has-arrow"
-            href="javascript:void()"
-            aria-expanded="false"
-          >
-            <i className="icon-speedometer menu-icon" />
-            <span className="nav-text">Dashboard</span>
-          </a>
-          <ul aria-expanded="false">
-            <li>
-            <Link to={`${config.baseUrl}dashboard`}><a>Home 1</a></Link>
-            </li>
-            {/* <li><a href="./index-2.html">Home 2</a></li> */}
-          </ul>
-        
-        
-        </li>
-      </ul>
-    </div>
-  </div>
-  {/***********************************
-      Sidebar end
-  ************************************/}
-  {/***********************************
-      Content body start
-  ************************************/}
+<Navbar/>
+<Headers/>
+  <Sidebar/>
   <div className="content-body">
     <div className="container-fluid mt-3">
       <div className="row">
@@ -134,18 +84,7 @@ function Dashboard(){
    
       
     </div>
-    {/* #/ container */}
   </div>
-  {/***********************************
-      Content body end
-  ************************************/}
-  {/***********************************
-      Footer start
-  ************************************/}
- 
-  {/***********************************
-      Footer end
-  ************************************/}
 </div>
 
 
