@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import config from '../config/config';
 import { LoginAction } from '../Action/userAction';
 import Cookies from 'js-cookie';

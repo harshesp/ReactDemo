@@ -6,6 +6,13 @@ import Cookies from "js-cookie";
 
 function Header(){
 
+
+  const loginData = (!Cookies.get('success')) ? [] : JSON.parse(Cookies.get('success'));
+
+  if(loginData==''){
+window.location.href=`${config.baseUrl}`;
+
+  }
   
   function logout(){
     Cookies.remove('success');

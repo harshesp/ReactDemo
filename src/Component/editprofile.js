@@ -10,12 +10,12 @@ import Cookies from "js-cookie";
 
 function EditProfile(){
 
-    const loginData = (!Cookies.get('success')) ? [] : JSON.parse(Cookies.get('success'));
+//     const loginData = (!Cookies.get('success')) ? [] : JSON.parse(Cookies.get('success'));
 
-    if(loginData==''){
-  window.location.href=`${config.baseUrl}`;
+//     if(loginData==''){
+//   window.location.href=`${config.baseUrl}`;
   
-    }
+//     }
 
     return(<div >
        
