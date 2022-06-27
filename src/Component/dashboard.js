@@ -10,8 +10,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Web3 from '/node_modules/web3/dist/web3.min.js';
 import mintAbi from './TokentransactionAbi.json';
 import mintregistrationAbi from './UserRegistration.json';
-import SimpleDateTime  from 'react-simple-timestamp-to-date';
-import "../Component/tablestyle.css"
+import SimpleDateTime from 'react-simple-timestamp-to-date';
+import "../Component/tablestyle.css";
+import RegisterProductAbi from "./RegisterProduct.json";
+
 
 
 
@@ -29,7 +31,14 @@ function Dashboard(props) {
 	const [tokenBalance, settokenBalance] = useState(null);
 	const [getuserdata, setgetuserdata] = useState({});
 	const [user, setuser] = useState([]);
-	const [checktable,setchecktable] = useState(false);
+	const [checktable, setchecktable] = useState(false);
+	const contractadd = "0x3B04B6c57256b3BdE739B94CA6dC6594a258E1EB";
+	const contractAddressreg = "0x74077a30cb268224b3b47a213e3f3f3ae230bbab";
+	const [checkreg, setcheckreg] = useState(false);
+	const [form, setForm] = useState({ title: "", desc: "" , price: ""});
+	const [buyid, setbuyeid] = useState("");
+	var number1=0;
+
 
 
 
@@ -55,7 +64,7 @@ function Dashboard(props) {
 			setcheck(true);
 		}
 
-		
+
 	}
 	const gettokenbalance = async () => {
 		const web3 = new Web3(window.ethereum);
@@ -181,7 +190,7 @@ function Dashboard(props) {
 
 	async function SetUserData(e) {
 		e.preventDefault();
-		const contractadd = "0x3B04B6c57256b3BdE739B94CA6dC6594a258E1EB";
+
 		//const passadd="0x6Cef9130C88B75E7028CB048092D8cfFe865600e"
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(mintregistrationAbi, contractadd);
@@ -190,7 +199,7 @@ function Dashboard(props) {
 	}
 	async function GetUserData(e) {
 		e.preventDefault();
-		const contractadd = "0x3B04B6c57256b3BdE739B94CA6dC6594a258E1EB";
+
 		//const passadd="0x6Cef9130C88B75E7028CB048092D8cfFe865600e"
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(mintregistrationAbi, contractadd);
@@ -205,13 +214,72 @@ function Dashboard(props) {
 	// });},[])
 	function ShowTransaction() {
 		setchecktable(true);
-		fetch("https://api-rinkeby.etherscan.io/api?module=account&action=txlist&address=0x78D79B709C8A0b9D472730028604A2CF4Db141aA&startblock=0&endblock=99999999&page=1&offset=300&sort=asc&apikey=QT3K78XCA3HYQN57H6ZMBWT4QKQYYKGIMQ").then(res => res.json()).then(data => {
+		fetch("https://api-rinkeby.etherscan.io/api?module=account&action=txlist&address=0x78D79B709C8A0b9D472730028604A2CF4Db141aA&startblock=0&endblock=99999999&page=1&offset=300&sort=desc&apikey=QT3K78XCA3HYQN57H6ZMBWT4QKQYYKGIMQ").then(res => res.json()).then(data => {
 			console.log(data.result)
 			setuser(data.result)
-	
+
 		});
+
+	}
+
+
+	async function registerProduct(e) {
+		e.preventDefault();
+
+
+		let str= String(num);
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(RegisterProductAbi, contractAddressreg);
+
+		//let SetProduct = await contract.methods.registerProduct(form.title, form.desc, '500000000000000').send({ from: currentaccoount });
+		let SetProduct = await contract.methods.registerProduct(form.title, form.desc, str).send({ from: currentaccoount });
+		console.log(SetProduct);
 		
 	}
+
+	async function buyproduct(e) {
+		e.preventDefault();
+		number1=number1/10**18;
+		let str=String(number1);
+		console.log(str);
+		
+		const web3 = new Web3(window.ethereum);
+		let money = web3.utils.toWei(str, 'ether')
+		console.log(money)
+
+
+		let contract = new web3.eth.Contract(RegisterProductAbi, contractAddressreg);
+		let getproduct = await contract.methods.buy(buyid).send({ from: currentaccoount, value: money });
+		console.log(getproduct);
+	}
+
+
+
+	async function delivery(e) {
+		e.preventDefault();
+		const web3 = new Web3(window.ethereum);
+
+
+
+		let contract = new web3.eth.Contract(RegisterProductAbi, contractAddressreg);
+		let delivered = await contract.methods.delivery(buyid).send({ from: currentaccoount });
+		console.log(delivered);
+	}
+
+
+
+	const inputHandler = (e) => {
+		const { name, value } = e.target
+
+		setForm((old) => {
+			return { ...old, [name]: value }
+		})
+	}
+
+	function setregcheck() {
+		setcheckreg(true);
+	}
+
 	return (
 		<div >
 			<Navbar />
@@ -265,6 +333,7 @@ function Dashboard(props) {
 											<div className='form-group'>
 												<button className='btn btn-info' onClick={Send1} >{btn1}</button>
 											</div>
+
 										</form>
 									</div>
 								</div>
@@ -296,31 +365,58 @@ function Dashboard(props) {
 					<h3>Show transactions</h3>
 					<button className='btn mb-1 btn-outline-primary' onClick={ShowTransaction}>Transaction</button>
 				</div>
-				{!checktable?<div></div>
-				:<div  style={{height:'180px',width:'1000px',overflow:'auto'}} className='fixTableHead'>
-					<table border='1' className='fixTableHead thead th'>
-					<thead>
-					<tr ><th>BlockNumber</th>
-					    <th >hash</th>
-						<th >from</th>
-						<th >to</th>
-						<th >value</th>
-						<th >timeStamp</th></tr>
-					</thead>
-					{
-					
-					user.map(item =>(
-					<tr><td>{item.blockNumber}</td>
-					    <td>{item.hash}</td>
-						<td>{item.from}</td>
-						<td>{item.to}</td>
-						<td>{item.value/10**18}</td>
-						<td>{Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(item.timestamp)}</td></tr>))
-					}
-					
-					</table>
-				</div>}
+				{!checktable ? <div></div>
+					: <div style={{ height: '180px', width: '1000px', overflow: 'auto' }} className='fixTableHead'>
+						<table border='1' className='fixTableHead thead th'>
+							<thead>
+								<tr ><th>BlockNumber</th>
+									<th >hash</th>
+									<th >from</th>
+									<th >to</th>
+									<th >value</th>
+									<th >timeStamp</th></tr>
+							</thead>
+							{
 
+								user.map(item => (
+									<tr><td>{item.blockNumber}</td>
+										<td>{item.hash}</td>
+										<td>{item.from}</td>
+										<td>{item.to}</td>
+										<td>{item.value / 10 ** 18}</td>
+										<td><SimpleDateTime dateSeparator="/" timeSeparator="-" format="YMD">{item.timeStamp}</SimpleDateTime></td></tr>
+								))
+							}
+
+						</table>
+					</div>}
+
+
+				<div>
+					<button className="btn btn-primary px-3 ml-4" onClick={setregcheck}>Register Product</button>
+					<div class="login-form-bg h-100">
+						<form >{!checkreg ?
+												<div></div>
+												:
+												<div class="form-group">
+													<label>Enter Title </label>
+													<input type="text" placeholder="title" name="title" onChange={inputHandler} /><br />
+													<label>Enter description </label>
+													<input type="text" placeholder="description" name="desc" onChange={inputHandler} /><br />
+													<label>Enter price in terms of 0.000X </label>
+													<input type="text" placeholder="price" name="price" onChange={inputHandler} />
+												</div>
+											}</form></div>
+					<button className="btn btn-primary px-3 ml-4" onClick={registerProduct}>AddProduct</button>
+				</div>
+				{/* */}
+				<div>
+					<button className="btn btn-primary px-3 ml-4" onClick={buyproduct}>Buy Product</button>
+					<input type="text" placeholder='product_id' onChange={(e) => { setbuyeid(e.target.value) }} />
+				</div>
+				<div>
+					<button className="btn btn-primary px-3 ml-4" onClick={delivery}>Delivered???</button>
+				</div>
 			</div>
 
 		</div>
