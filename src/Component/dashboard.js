@@ -32,12 +32,14 @@ function Dashboard(props) {
 	const [getuserdata, setgetuserdata] = useState({});
 	const [user, setuser] = useState([]);
 	const [checktable, setchecktable] = useState(false);
-	const contractadd = "0x3B04B6c57256b3BdE739B94CA6dC6594a258E1EB";
-	const contractAddressreg = "0x74077a30cb268224b3b47a213e3f3f3ae230bbab";
+	const contractadd = "0x74C15d775310968670C86B75379852683fcbC0AE";
+	const contractAddressreg = "0x241E7A11c841D8E8D17aE73f51a7DFFfD490A646";
 	const [checkreg, setcheckreg] = useState(false);
-	const [form, setForm] = useState({ title: "", desc: "" , price: ""});
+	const [form, setForm] = useState({ title: "", desc: "", price: "" });
 	const [buyid, setbuyeid] = useState("");
-	var number1=0;
+    const [setform,setsetform] = useState()
+
+
 
 
 
@@ -226,30 +228,46 @@ function Dashboard(props) {
 	async function registerProduct(e) {
 		e.preventDefault();
 
-
-		let str= String(num);
+		//console.log(form.price);
+		let num = Number(form.price);
+		//console.log(num);
+		num = num * 10 ** 18;
+		//console.log(num);
+		let str = String(num);
+		//console.log(str);
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(RegisterProductAbi, contractAddressreg);
+		console.log(str);
 
 		//let SetProduct = await contract.methods.registerProduct(form.title, form.desc, '500000000000000').send({ from: currentaccoount });
 		let SetProduct = await contract.methods.registerProduct(form.title, form.desc, str).send({ from: currentaccoount });
+
 		console.log(SetProduct);
-		
+
+
 	}
 
 	async function buyproduct(e) {
 		e.preventDefault();
-		number1=number1/10**18;
-		let str=String(number1);
-		console.log(str);
-		
-		const web3 = new Web3(window.ethereum);
-		let money = web3.utils.toWei(str, 'ether')
-		console.log(money)
 
+
+		const web3 = new Web3(window.ethereum);
 
 		let contract = new web3.eth.Contract(RegisterProductAbi, contractAddressreg);
+
+		let priceorg = await contract.methods.getProduct(buyid).call();
+
+		console.log(priceorg);
+		priceorg = priceorg / 10 ** 18;
+		console.log(priceorg);
+		let newpriceord = String(priceorg);
+		console.log(newpriceord);
+		let money = web3.utils.toWei(newpriceord, 'ether');
+
+		console.log(money);
+
 		let getproduct = await contract.methods.buy(buyid).send({ from: currentaccoount, value: money });
+
 		console.log(getproduct);
 	}
 
@@ -394,25 +412,26 @@ function Dashboard(props) {
 
 				<div>
 					<button className="btn btn-primary px-3 ml-4" onClick={setregcheck}>Register Product</button>
-					<div class="login-form-bg h-100">
+					<div className="login-form-bg h-100">
 						<form >{!checkreg ?
-												<div></div>
-												:
-												<div class="form-group">
-													<label>Enter Title </label>
-													<input type="text" placeholder="title" name="title" onChange={inputHandler} /><br />
-													<label>Enter description </label>
-													<input type="text" placeholder="description" name="desc" onChange={inputHandler} /><br />
-													<label>Enter price in terms of 0.000X </label>
-													<input type="text" placeholder="price" name="price" onChange={inputHandler} />
-												</div>
-											}</form></div>
+							<div></div>
+							:
+							<div className="form-group">
+								<label>Enter Title </label>
+								<input type="text" placeholder="title" name="title" onChange={inputHandler} /><br />
+								<label>Enter description </label>
+								<input type="text" placeholder="description" name="desc" onChange={inputHandler} /><br />
+								<label>Enter price in terms of 0.000X </label>
+								<input type="text" placeholder="price" name="price" onChange={inputHandler} />
+							</div>
+						}</form></div>
 					<button className="btn btn-primary px-3 ml-4" onClick={registerProduct}>AddProduct</button>
 				</div>
 				{/* */}
 				<div>
+
+					<input type="number" placeholder='product_id' onChange={(e) => setbuyeid(e.target.value)} />
 					<button className="btn btn-primary px-3 ml-4" onClick={buyproduct}>Buy Product</button>
-					<input type="text" placeholder='product_id' onChange={(e) => { setbuyeid(e.target.value) }} />
 				</div>
 				<div>
 					<button className="btn btn-primary px-3 ml-4" onClick={delivery}>Delivered???</button>
