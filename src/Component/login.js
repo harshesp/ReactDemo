@@ -71,7 +71,7 @@ function Login() {
                         <div className="form-input-content" >
                             <div className="card login-form mb-0">
                                 <div className="card-body pt-5">
-                                    <a className="text-center" > <h4>Rosella</h4></a>
+                                    <a className="text-center" > <h4>The Log In page</h4></a>
 
                                     <form className="mt-5 mb-5 login-input" onSubmit={Submit} >
                                         <div className="form-group">

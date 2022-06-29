@@ -13,12 +13,13 @@ import mintregistrationAbi from './UserRegistration.json';
 import SimpleDateTime from 'react-simple-timestamp-to-date';
 import "../Component/tablestyle.css";
 import RegisterProductAbi from "./RegisterProduct.json";
+import ESPABI from "./ESTABI.json";
 
 
 
 
 
-function Dashboard(props) {
+function Dashboard() {
 	const contractAddress = "0x598Ee1dA1967682C37Dd7EFBAAa66073562F0a1b";
 	const [currentaccoount, setcurrentaccoount] = useState(null);
 	const [balance, setbalance] = useState(null);
@@ -38,6 +39,7 @@ function Dashboard(props) {
 	const [form, setForm] = useState({ title: "", desc: "", price: "" });
 	const [buyid, setbuyeid] = useState("");
     const [setform,setsetform] = useState()
+	var esptokencontract="0x016Dbc24950Fe3e5d30F432c43575372Af5C3ed3";
 
 
 
@@ -68,11 +70,11 @@ function Dashboard(props) {
 
 
 	}
-	const gettokenbalance = async () => {
+	const gettokenbalance = async (currentaccoount) => {
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(mintAbi, contractAddress);
+		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
 		const tokanbal = await contract.methods.balanceOf(currentaccoount).call();
-		settokenBalance(tokanbal / 10 ** 8);
+		settokenBalance(tokanbal / 10 ** 18);
 	}
 	const detectCurrentProvider = () => {
 		let provider;
@@ -126,11 +128,11 @@ function Dashboard(props) {
 				from: currentaccoount, to: enterAddress, value: web3.utils.toWei(enterAamount, 'ether'),
 			}, function (err, transactionHash) {
 				if (err) {
-					setbtn('Send');
+					setbtn1('Send');
 					toast.error('Transaction Failed');
 					console.log(err);
 				} else {
-					setbtn('Send');
+					setbtn1('Send');
 					toast.success(`Transaction Successful ${transactionHash}`);
 					// alert(transactionHash);
 				}
@@ -140,7 +142,7 @@ function Dashboard(props) {
 	function Validation() {
 		let amounterr = '';
 		let addresserr = '';
-		if ((enterAamount === 0) || ((balance - enterAamount) <= 0)) {
+		if ((enterAamount === 0) || ((balance - enterAamount) <= 0) || ((tokenBalance - enterAamount) <= 0)) {
 			amounterr = "Please Provide valid Amount";
 		}
 		if ((enterAddress === '') || ((enterAddress.length) < 42)) {
@@ -162,18 +164,15 @@ function Dashboard(props) {
 
 
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(mintAbi, contractAddress);
+		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
+		let amount = web3.utils.toWei(enterAamount);
 
+		const transactions = await contract.methods.transfer(enterAddress, amount).encodeABI();
 
-		const transactions = await contract.methods.transfer(enterAddress, enterAamount).encodeABI();
-
-		let isValid = Validation();
-		if (!isValid) {
-			alert("false");
-		} else {
+		 
 			web3.eth.sendTransaction({
 				from: currentaccoount,
-				to: contractAddress,
+				to: esptokencontract,
 				data: transactions,
 			}, function (err, transactionHash) {
 				if (err) {
@@ -186,7 +185,7 @@ function Dashboard(props) {
 					// alert(transactionHash);
 				}
 			})
-		}
+		
 	}
 
 
@@ -323,7 +322,7 @@ function Dashboard(props) {
 						<div><div>
 							<h4>account : {currentaccoount}</h4>
 							<h4>balance : {balance}</h4>
-							<h4>balance : {tokenBalance / 10 ** 10}</h4>
+							<h4>balance : {tokenBalance}</h4>
 						</div>
 
 							<div className='row'>
