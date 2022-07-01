@@ -14,6 +14,7 @@ import SimpleDateTime from 'react-simple-timestamp-to-date';
 import "../Component/tablestyle.css";
 import RegisterProductAbi from "./RegisterProduct.json";
 import ESPABI from "./ESTABI.json";
+import sakingEST from "./sakingEST.json";
 
 
 
@@ -38,8 +39,14 @@ function Dashboard() {
 	const [checkreg, setcheckreg] = useState(false);
 	const [form, setForm] = useState({ title: "", desc: "", price: "" });
 	const [buyid, setbuyeid] = useState("");
-    const [setform,setsetform] = useState()
-	var esptokencontract="0x016Dbc24950Fe3e5d30F432c43575372Af5C3ed3";
+    const [approveAmount,setApproveAmount] = useState(null);
+	//const [approveAccount,setApproveAccount] = useState('');
+	const [apporveValid,setAppoveValid] = useState({});
+	//const [stakeAmount,setStakeAmount] = useState(null);
+	const [totalReward,setTotalReward] = useState();
+	const [clamReward,setClaimReward] = useState();
+	var esptokencontract="0xFe976ce253d10F7D34817236f040C8e4Daa4440B";
+	var stakingContract = "0xA93755F1223260EE4D0dB153DD01CBc9Ce9bB2C1";
 
 
 
@@ -187,7 +194,40 @@ function Dashboard() {
 			})
 		
 	}
+     function validApprove(){
+		let amounterr = '';
+		let addresserr = '';
+		if ((approveAmount === 0) ||((tokenBalance - approveAmount) <= 0)) {
+			amounterr = "Please Provide valid Amount";
+		}
+		
+		if (amounterr) {
+			setAppoveValid({ amounterr});
+			return false;
+		} else {
+			
+			return true;
+		}
+	 }
+	async function approve(e){
+    e.preventDefault();
+    let isValid= validApprove();
+	if (!isValid) {
+		alert("false");
+	} else {
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
+		let amount = web3.utils.toWei(approveAmount);
 
+		const approval = await contract.methods.approve(stakingContract, amount).encodeABI();
+		console.log(approval);
+
+		
+	}
+    
+	
+
+	}
 
 	async function SetUserData(e) {
 		e.preventDefault();
@@ -297,6 +337,46 @@ function Dashboard() {
 		setcheckreg(true);
 	}
 
+	async function setOnStaking(e){
+		e.preventDefault();
+
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(sakingEST, stakingContract);
+		const stake = await contract.methods.stake(approveAmount).send({ from: currentaccoount });
+		console.log( stake);
+
+	}
+
+
+	async function showReward(e){
+		e.preventDefault();
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(sakingEST, stakingContract);
+		const reward = await contract.methods.showTotalReward().call();
+		console.log( reward);
+		setTotalReward(reward);
+	}
+
+	async function claimReward(e){
+		e.preventDefault();
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(sakingEST, stakingContract);
+		let amount = (totalReward);
+		const cliamed = await contract.methods.claimReward(amount).send({ from: currentaccoount });
+		console.log( cliamed);
+	
+	}
+
+async function claimAmount(e){
+	e.preventDefault();
+		const web3 = new Web3(window.ethereum);
+		let contract = new web3.eth.Contract(sakingEST, stakingContract);
+		const cliamed = await contract.methods.claimAmount().send({from:currentaccoount});
+		console.log( cliamed);
+}
+
+
+
 	return (
 		<div >
 			<Navbar />
@@ -366,6 +446,69 @@ function Dashboard() {
 
 
 				</div>
+				
+
+				<div className='row'>
+								<div className='col-md-12'>
+									<div className='col-md-6'>
+										<form>
+					
+					<div className='form-group'>
+					<label>Set Amount on Staking after appove</label><br/>
+					<input type="number" name="approve_amount" value={approveAmount} onChange={e => setApproveAmount(e.target.value)} placeholder="Amount to approve"/><br/>
+					<button onClick={setOnStaking} className='btn btn-info'>STAKE</button>
+					</div>
+					
+					
+					</form>
+				</div></div></div>
+
+
+				<div className='row'>
+								<div className='col-md-12'>
+									<div className='col-md-6'>
+										<form>
+					
+					<div className='form-group'>
+					<label>Show How much reward you got till now</label><br/>
+					<button onClick={showReward} className='btn btn-info'>Show</button>
+					<div><span className="validationError">{totalReward}</span></div>
+					</div>
+					
+					
+					</form>
+				</div></div></div>
+
+				<div className='row'>
+								<div className='col-md-12'>
+									<div className='col-md-6'>
+										<form>
+					
+					<div className='form-group'>
+					<label>Claim reward you got till now</label><br/>
+					<input type="number" value={clamReward} onChange={e => setClaimReward(e.target.value)} />
+					<button onClick={claimReward} className='btn btn-info'>Claim</button>
+					<div><span className="validationError"></span></div>
+					</div>
+					
+					
+					</form>
+				</div></div></div>
+				
+				<div className='row'>
+								<div className='col-md-12'>
+									<div className='col-md-6'>
+										<form>
+					
+					<div className='form-group'>
+					<label>Withdraw whole Amount</label><br/>
+					<button onClick={claimAmount} className='btn btn-info'>Withdraw</button>
+					<div><span className="validationError"></span></div>
+					</div>
+					
+					
+					</form>
+				</div></div></div>
 
 				<div>
 					<h3>SET DATA</h3>
