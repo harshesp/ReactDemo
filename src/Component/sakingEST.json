@@ -61,31 +61,51 @@
         "name": "claimAmount",
         "outputs": [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
+                "internalType": "string",
+                "name": "msgs",
+                "type": "string"
             }
         ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
     {
-        "inputs": [
+        "inputs": [],
+        "name": "claimAmount_msg",
+        "outputs": [
             {
-                "internalType": "uint256",
-                "name": "_value",
-                "type": "uint256"
+                "internalType": "string",
+                "name": "",
+                "type": "string"
             }
         ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "claimReward",
         "outputs": [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
+                "internalType": "string",
+                "name": "msgs",
+                "type": "string"
             }
         ],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "claimReward_msg",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -96,19 +116,6 @@
                 "internalType": "address",
                 "name": "",
                 "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "count",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -237,17 +244,51 @@
     },
     {
         "inputs": [],
+        "name": "shoeClaimAmount_msg",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "msgs",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "showClaimReward_msg",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "msgs",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "showStakeValue",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "showTotalReward",
         "outputs": [
             {
                 "internalType": "uint256",
                 "name": "reward",
                 "type": "uint256"
-            },
-            {
-                "internalType": "string",
-                "name": "msgs",
-                "type": "string"
             }
         ],
         "stateMutability": "nonpayable",
@@ -264,9 +305,9 @@
         "name": "stake",
         "outputs": [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "stakevalue",
+                "type": "uint256"
             }
         ],
         "stateMutability": "nonpayable",

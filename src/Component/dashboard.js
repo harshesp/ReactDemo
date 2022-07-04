@@ -15,6 +15,7 @@ import "../Component/tablestyle.css";
 import RegisterProductAbi from "./RegisterProduct.json";
 import ESPABI from "./ESTABI.json";
 import sakingEST from "./sakingEST.json";
+import { messagePrefix } from '@ethersproject/hash';
 
 
 
@@ -39,14 +40,17 @@ function Dashboard() {
 	const [checkreg, setcheckreg] = useState(false);
 	const [form, setForm] = useState({ title: "", desc: "", price: "" });
 	const [buyid, setbuyeid] = useState("");
-    const [approveAmount,setApproveAmount] = useState(null);
+	const [stakedAmount, setStakedAmount] = useState(null);
 	//const [approveAccount,setApproveAccount] = useState('');
-	const [apporveValid,setAppoveValid] = useState({});
+	const [apporveValid, setAppoveValid] = useState({});
 	//const [stakeAmount,setStakeAmount] = useState(null);
-	const [totalReward,setTotalReward] = useState();
-	const [clamReward,setClaimReward] = useState();
-	var esptokencontract="0xFe976ce253d10F7D34817236f040C8e4Daa4440B";
-	var stakingContract = "0xA93755F1223260EE4D0dB153DD01CBc9Ce9bB2C1";
+	const [totalReward, setTotalReward] = useState();
+	const [clamReward, setClaimReward] = useState();
+	const [stakeValue, setStakeValue] = useState();
+	const [amounntValue, setAmaountValue] = useState();
+	const [totalRewardErr, setTotalRewardErr] = useState("");
+	var esptokencontract = "0x6f498DCa663f1347BAABf382697297b8f08096dF";
+	var stakingContract = "0x40Bb19E0189A1ABB8c1047eE2fb73D3C6543f21d";
 
 
 
@@ -176,58 +180,26 @@ function Dashboard() {
 
 		const transactions = await contract.methods.transfer(enterAddress, amount).encodeABI();
 
-		 
-			web3.eth.sendTransaction({
-				from: currentaccoount,
-				to: esptokencontract,
-				data: transactions,
-			}, function (err, transactionHash) {
-				if (err) {
-					setbtn('Send');
-					toast.error('Transaction Failed');
-					console.log(err);
-				} else {
-					setbtn('Send');
-					toast.success(`Transaction Successful ${transactionHash}`);
-					// alert(transactionHash);
-				}
-			})
-		
-	}
-     function validApprove(){
-		let amounterr = '';
-		let addresserr = '';
-		if ((approveAmount === 0) ||((tokenBalance - approveAmount) <= 0)) {
-			amounterr = "Please Provide valid Amount";
-		}
-		
-		if (amounterr) {
-			setAppoveValid({ amounterr});
-			return false;
-		} else {
-			
-			return true;
-		}
-	 }
-	async function approve(e){
-    e.preventDefault();
-    let isValid= validApprove();
-	if (!isValid) {
-		alert("false");
-	} else {
-		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
-		let amount = web3.utils.toWei(approveAmount);
 
-		const approval = await contract.methods.approve(stakingContract, amount).encodeABI();
-		console.log(approval);
+		web3.eth.sendTransaction({
+			from: currentaccoount,
+			to: esptokencontract,
+			data: transactions,
+		}, function (err, transactionHash) {
+			if (err) {
+				setbtn('Send');
+				toast.error('Transaction Failed');
+				console.log(err);
+			} else {
+				setbtn('Send');
+				toast.success(`Transaction Successful ${transactionHash}`);
+				// alert(transactionHash);
+			}
+		})
 
-		
 	}
-    
 	
-
-	}
+	
 
 	async function SetUserData(e) {
 		e.preventDefault();
@@ -337,58 +309,63 @@ function Dashboard() {
 		setcheckreg(true);
 	}
 
-	async function setOnStaking(e){
+	async function setOnStaking(e) {
 		e.preventDefault();
 
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-		const stake = await contract.methods.stake(approveAmount).send({ from: currentaccoount });
-		console.log( stake);
-
+		const stake = await contract.methods.stake(stakedAmount).send({ from: currentaccoount });
+		console.log(stake);
+		const value = await contract.methods.showStakeValue().call();
+		console.log(value);
+		setStakeValue(value);
 	}
 
 
-	async function showReward(e){
+	async function showReward(e) {
 		e.preventDefault();
-		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-		const reward = await contract.methods.showTotalReward().call();
-		console.log( reward);
-		setTotalReward(reward);
+
+		
+			const web3 = new Web3(window.ethereum);
+			let contract = new web3.eth.Contract(sakingEST, stakingContract);
+			const reward = await contract.methods.showTotalReward().call();
+			console.log(reward);
+			setTotalReward(reward);
+			setTotalRewardErr("");
 	}
 
-	async function claimReward(e){
+	async function claimReward(e) {
 		e.preventDefault();
+
+		
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-		let amount = (totalReward);
-		const cliamed = await contract.methods.claimReward(amount).send({ from: currentaccoount });
-		console.log( cliamed);
-	
+
+		const claimedObj = await contract.methods.claimReward().send({ from: currentaccoount });
+		console.log(claimedObj);
+		const msgs = await contract.methods.showClaimReward_msg().call();
+		setClaimReward(msgs);
+
 	}
 
-async function claimAmount(e){
-	e.preventDefault();
+	async function claimAmount(e) {
+		e.preventDefault();
+       
 		const web3 = new Web3(window.ethereum);
 		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-		const cliamed = await contract.methods.claimAmount().send({from:currentaccoount});
-		console.log( cliamed);
-}
+		const cliamed = await contract.methods.claimAmount().send({ from: currentaccoount });
+		console.log(cliamed);
+		const msgs = await contract.methods.shoeClaimAmount_msg().call();
+		console.log(msgs);
+		setAmaountValue(msgs);
 
-
+	}
 
 	return (
 		<div >
 			<Navbar />
 			<Headers />
 			<Sidebar />
-			{/* <div className="content-body">
-                <div className="container-fluid mt-3">
-                <button className='className="btn mb-1 btn-outline-primary' onClick={checking}>ckick here</button>
-                </div>
-            </div> */}
-
-
 			<ToastContainer />
 			<div className="content-body">
 
@@ -445,141 +422,145 @@ async function claimAmount(e){
 
 
 
-				</div>
-				
 
-				<div className='row'>
-								<div className='col-md-12'>
-									<div className='col-md-6'>
-										<form>
-					
-					<div className='form-group'>
-					<label>Set Amount on Staking after appove</label><br/>
-					<input type="number" name="approve_amount" value={approveAmount} onChange={e => setApproveAmount(e.target.value)} placeholder="Amount to approve"/><br/>
-					<button onClick={setOnStaking} className='btn btn-info'>STAKE</button>
+
+
+					<div className='row'>
+						<div className='col-md-12'>
+							<div className='col-md-6'>
+								<form>
+
+									<div className='form-group'>
+										<label>Set Amount on Staking after appove</label><br />
+										<input type="number" name="approve_amount" value={stakedAmount} onChange={e => setStakedAmount(e.target.value)} placeholder="Amount to approve" /><br />
+										<button onClick={setOnStaking} className='btn btn-info'>STAKE</button>
+									</div>
+
+
+								</form>
+							</div></div></div>
+
+
+					<div className='row'>
+						<div className='col-md-12'>
+							<div className='col-md-6'>
+								<form>
+
+									<div className='form-group'>
+										<label>Show How much reward you got till now</label><br />
+										<button onClick={showReward} className='btn btn-info'>Show</button>
+										<div>
+											<span className="validationError">{totalReward}</span>
+											<span className="validationError">{totalRewardErr}</span>
+
+										</div>
+									</div>
+
+
+								</form>
+							</div></div></div>
+
+					<div className='row'>
+						<div className='col-md-12'>
+							<div className='col-md-6'>
+								<form>
+
+									<div className='form-group'>
+										<label>Claim reward you got till now</label><br />
+										<button onClick={claimReward} className='btn btn-info'>Claim</button>
+										<div><span className="validationError">{clamReward}</span></div>
+									</div>
+
+
+								</form>
+							</div></div></div>
+
+					<div className='row'>
+						<div className='col-md-12'>
+							<div className='col-md-6'>
+								<form>
+
+									<div className='form-group'>
+										<label>Withdraw whole Amount</label><br />
+										<button onClick={claimAmount} className='btn btn-info'>Withdraw</button>
+										<div><span className="validationError">{amounntValue}</span>
+										</div>
+									</div>
+
+
+								</form>
+							</div></div></div>
+
+					<div>
+						<h3>SET DATA</h3>
+						<button class="btn mb-1 btn-flat btn-success" onClick={SetUserData}> set data</button>
 					</div>
-					
-					
-					</form>
-				</div></div></div>
-
-
-				<div className='row'>
-								<div className='col-md-12'>
-									<div className='col-md-6'>
-										<form>
-					
-					<div className='form-group'>
-					<label>Show How much reward you got till now</label><br/>
-					<button onClick={showReward} className='btn btn-info'>Show</button>
-					<div><span className="validationError">{totalReward}</span></div>
+					<div>
+						<h3>GET DATA</h3>
+						<button class="btn mb-1 btn-flat btn-success" onClick={GetUserData}> get data</button><br />
+						<span>first name:  {getuserdata.first_name}</span><br />
+						<span>last name:  {getuserdata.last_name}</span><br />
+						<span>email:   {getuserdata.email}</span><br />
 					</div>
-					
-					
-					</form>
-				</div></div></div>
-
-				<div className='row'>
-								<div className='col-md-12'>
-									<div className='col-md-6'>
-										<form>
-					
-					<div className='form-group'>
-					<label>Claim reward you got till now</label><br/>
-					<input type="number" value={clamReward} onChange={e => setClaimReward(e.target.value)} />
-					<button onClick={claimReward} className='btn btn-info'>Claim</button>
-					<div><span className="validationError"></span></div>
+					<div>
+						<h3>Show transactions</h3>
+						<button className='btn mb-1 btn-outline-primary' onClick={ShowTransaction}>Transaction</button>
 					</div>
-					
-					
-					</form>
-				</div></div></div>
-				
-				<div className='row'>
-								<div className='col-md-12'>
-									<div className='col-md-6'>
-										<form>
-					
-					<div className='form-group'>
-					<label>Withdraw whole Amount</label><br/>
-					<button onClick={claimAmount} className='btn btn-info'>Withdraw</button>
-					<div><span className="validationError"></span></div>
+					{!checktable ? <div></div>
+						: <div style={{ height: '180px', width: '1000px', overflow: 'auto' }} className='fixTableHead'>
+							<table border='1' className='fixTableHead thead th'>
+								<thead>
+									<tr ><th>BlockNumber</th>
+										<th >hash</th>
+										<th >from</th>
+										<th >to</th>
+										<th >value</th>
+										<th >timeStamp</th></tr>
+								</thead>
+								{
+
+									user.map(item => (
+										<tr><td>{item.blockNumber}</td>
+											<td>{item.hash}</td>
+											<td>{item.from}</td>
+											<td>{item.to}</td>
+											<td>{item.value / 10 ** 18}</td>
+											<td><SimpleDateTime dateSeparator="/" timeSeparator="-" format="YMD">{item.timeStamp}</SimpleDateTime></td></tr>
+									))
+								}
+
+							</table>
+						</div>}
+
+
+					<div>
+						<button className="btn btn-primary px-3 ml-4" onClick={setregcheck}>Register Product</button>
+						<div className="login-form-bg h-100">
+							<form >{!checkreg ?
+								<div></div>
+								:
+								<div className="form-group">
+									<label>Enter Title </label>
+									<input type="text" placeholder="title" name="title" onChange={inputHandler} /><br />
+									<label>Enter description </label>
+									<input type="text" placeholder="description" name="desc" onChange={inputHandler} /><br />
+									<label>Enter price in terms of 0.000X </label>
+									<input type="text" placeholder="price" name="price" onChange={inputHandler} />
+								</div>
+							}</form></div>
+						<button className="btn btn-primary px-3 ml-4" onClick={registerProduct}>AddProduct</button>
 					</div>
-					
-					
-					</form>
-				</div></div></div>
+					{/* */}
+					<div>
 
-				<div>
-					<h3>SET DATA</h3>
-					<button class="btn mb-1 btn-flat btn-success" onClick={SetUserData}> set data</button>
-				</div>
-				<div>
-					<h3>GET DATA</h3>
-					<button class="btn mb-1 btn-flat btn-success" onClick={GetUserData}> get data</button><br />
-					<span>first name:  {getuserdata.first_name}</span><br />
-					<span>last name:  {getuserdata.last_name}</span><br />
-					<span>email:   {getuserdata.email}</span><br />
-				</div>
-				<div>
-					<h3>Show transactions</h3>
-					<button className='btn mb-1 btn-outline-primary' onClick={ShowTransaction}>Transaction</button>
-				</div>
-				{!checktable ? <div></div>
-					: <div style={{ height: '180px', width: '1000px', overflow: 'auto' }} className='fixTableHead'>
-						<table border='1' className='fixTableHead thead th'>
-							<thead>
-								<tr ><th>BlockNumber</th>
-									<th >hash</th>
-									<th >from</th>
-									<th >to</th>
-									<th >value</th>
-									<th >timeStamp</th></tr>
-							</thead>
-							{
-
-								user.map(item => (
-									<tr><td>{item.blockNumber}</td>
-										<td>{item.hash}</td>
-										<td>{item.from}</td>
-										<td>{item.to}</td>
-										<td>{item.value / 10 ** 18}</td>
-										<td><SimpleDateTime dateSeparator="/" timeSeparator="-" format="YMD">{item.timeStamp}</SimpleDateTime></td></tr>
-								))
-							}
-
-						</table>
-					</div>}
-
-
-				<div>
-					<button className="btn btn-primary px-3 ml-4" onClick={setregcheck}>Register Product</button>
-					<div className="login-form-bg h-100">
-						<form >{!checkreg ?
-							<div></div>
-							:
-							<div className="form-group">
-								<label>Enter Title </label>
-								<input type="text" placeholder="title" name="title" onChange={inputHandler} /><br />
-								<label>Enter description </label>
-								<input type="text" placeholder="description" name="desc" onChange={inputHandler} /><br />
-								<label>Enter price in terms of 0.000X </label>
-								<input type="text" placeholder="price" name="price" onChange={inputHandler} />
-							</div>
-						}</form></div>
-					<button className="btn btn-primary px-3 ml-4" onClick={registerProduct}>AddProduct</button>
-				</div>
-				{/* */}
-				<div>
-
-					<input type="number" placeholder='product_id' onChange={(e) => setbuyeid(e.target.value)} />
-					<button className="btn btn-primary px-3 ml-4" onClick={buyproduct}>Buy Product</button>
-				</div>
-				<div>
-					<button className="btn btn-primary px-3 ml-4" onClick={delivery}>Delivered???</button>
+						<input type="number" placeholder='product_id' onChange={(e) => setbuyeid(e.target.value)} />
+						<button className="btn btn-primary px-3 ml-4" onClick={buyproduct}>Buy Product</button>
+					</div>
+					<div>
+						<button className="btn btn-primary px-3 ml-4" onClick={delivery}>Delivered???</button>
+					</div>
 				</div>
 			</div>
-
 		</div>
 	);
 }
