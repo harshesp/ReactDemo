@@ -16,6 +16,8 @@ import RegisterProductAbi from "./RegisterProduct.json";
 import ESPABI from "./ESTABI.json";
 import sakingEST from "./sakingEST.json";
 import { messagePrefix } from '@ethersproject/hash';
+import ESTI from "./ESTI.json";
+import ESTIstaking from "./ESTIstaking.json";
 
 
 
@@ -49,8 +51,11 @@ function Dashboard() {
 	const [stakeValue, setStakeValue] = useState();
 	const [amounntValue, setAmaountValue] = useState();
 	const [totalRewardErr, setTotalRewardErr] = useState("");
-	var esptokencontract = "0x6f498DCa663f1347BAABf382697297b8f08096dF";
-	var stakingContract = "0x40Bb19E0189A1ABB8c1047eE2fb73D3C6543f21d";
+	const [checkAccontBalance,setCheckAccontBalance] = useState('');
+	var esptokencontract = "0xEcD31983378847dA34FaC82Dc5FfF51C9C31c151";
+	var stakingContract = "0xcF5E4c777a21B866eB53b718a993bd9c27a38e98";
+	var estItokencontract = "0x6eA7Ff37b5E2dC6B2B6Bbf42cbe29fb37973528e";
+	var stakingestIContract = "0x8114C10DD1d159fd9d48B87dA66d9917fC288187";
 
 
 
@@ -83,7 +88,8 @@ function Dashboard() {
 	}
 	const gettokenbalance = async (currentaccoount) => {
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
+		//let contract = new web3.eth.Contract(ESPABI, esptokencontract);
+		let contract = new web3.eth.Contract(ESTI, estItokencontract);
 		const tokanbal = await contract.methods.balanceOf(currentaccoount).call();
 		settokenBalance(tokanbal / 10 ** 18);
 	}
@@ -175,7 +181,7 @@ function Dashboard() {
 
 
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(ESPABI, esptokencontract);
+		let contract = new web3.eth.Contract(ESTI, estItokencontract);
 		let amount = web3.utils.toWei(enterAamount);
 
 		const transactions = await contract.methods.transfer(enterAddress, amount).encodeABI();
@@ -183,7 +189,7 @@ function Dashboard() {
 
 		web3.eth.sendTransaction({
 			from: currentaccoount,
-			to: esptokencontract,
+			to: estItokencontract,
 			data: transactions,
 		}, function (err, transactionHash) {
 			if (err) {
@@ -313,8 +319,17 @@ function Dashboard() {
 		e.preventDefault();
 
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-		const stake = await contract.methods.stake(stakedAmount).send({ from: currentaccoount });
+		let amount = web3.utils.fromWei(web3.utils.toWei(
+			web3.utils.toBN((stakedAmount)*10**18), // converts Number to BN, which is accepted by `toWei()`
+			'ether'
+		));
+		console.log(amount);
+		let contracterc20 = new web3.eth.Contract(ESTI, estItokencontract);
+		const checkApprove= await contracterc20.methods.approve(stakingestIContract,amount).send({from : currentaccoount });
+        console.log(checkApprove);
+		let contract = new web3.eth.Contract(ESTIstaking, stakingestIContract);
+		
+		const stake = await contract.methods.stake(amount).send({ from: currentaccoount });
 		console.log(stake);
 		const value = await contract.methods.showStakeValue().call();
 		console.log(value);
@@ -325,12 +340,11 @@ function Dashboard() {
 	async function showReward(e) {
 		e.preventDefault();
 
-		
 			const web3 = new Web3(window.ethereum);
-			let contract = new web3.eth.Contract(sakingEST, stakingContract);
-			const reward = await contract.methods.showTotalReward().call();
+			let contract = new web3.eth.Contract(ESTIstaking,stakingestIContract );
+			const reward = await contract.methods.showTotalReward(currentaccoount).call();
 			console.log(reward);
-			setTotalReward(reward);
+			setTotalReward(reward/10**18);
 			setTotalRewardErr("");
 	}
 
@@ -339,9 +353,10 @@ function Dashboard() {
 
 		
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(sakingEST, stakingContract);
-
+		let contract = new web3.eth.Contract(ESTIstaking, stakingestIContract);
+        
 		const claimedObj = await contract.methods.claimReward().send({ from: currentaccoount });
+		setTotalReward(0);
 		console.log(claimedObj);
 		const msgs = await contract.methods.showClaimReward_msg().call();
 		setClaimReward(msgs);
@@ -352,7 +367,7 @@ function Dashboard() {
 		e.preventDefault();
        
 		const web3 = new Web3(window.ethereum);
-		let contract = new web3.eth.Contract(sakingEST, stakingContract);
+		let contract = new web3.eth.Contract(ESTIstaking, stakingestIContract);
 		const cliamed = await contract.methods.claimAmount().send({ from: currentaccoount });
 		console.log(cliamed);
 		const msgs = await contract.methods.shoeClaimAmount_msg().call();
@@ -361,6 +376,19 @@ function Dashboard() {
 
 	}
 
+
+	async function getbalanace(e){
+		e.preventDefault();
+		const web3 = new Web3(window.ethereum);
+		
+		let contract = new web3.eth.Contract(ESTIstaking, stakingestIContract);
+		const balance =await contract.methods.getBalance(checkAccontBalance).call()
+		//const balance = web3.utils.fromWei(await contract.methods.getBalance(checkAccontBalance).call());
+		
+	alert((balance));
+	}
+
+	
 	return (
 		<div >
 			<Navbar />
@@ -484,7 +512,23 @@ function Dashboard() {
 										<label>Withdraw whole Amount</label><br />
 										<button onClick={claimAmount} className='btn btn-info'>Withdraw</button>
 										<div><span className="validationError">{amounntValue}</span>
+										
 										</div>
+									</div>
+
+
+								</form>
+							</div></div></div>
+							<div className='row'>
+						<div className='col-md-12'>
+							<div className='col-md-6'>
+								<form>
+
+									<div className='form-group'>
+										<label>Get balance</label><br />
+										<input type="text" value={checkAccontBalance} onChange={e => setCheckAccontBalance(e.target.value)} />
+										<button onClick={getbalanace} className='btn btn-info'>Get Balance</button>
+										<div><span className="validationError"></span></div>
 									</div>
 
 
